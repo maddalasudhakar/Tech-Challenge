@@ -1,0 +1,73 @@
+REPORT z_count_chars.
+
+" Local variables declaration
+DATA: lv_word_count TYPE i,
+      lv_unique_count TYPE i,
+      lv_current_char TYPE char1.
+
+" Internal table to hold words after splitting and a work area for processing
+DATA: lt_words TYPE TABLE OF string,
+      lw_example TYPE string.
+
+" Range table to hold unique characters
+DATA  r_unique_letters TYPE RANGE OF char1.
+
+" Selection screen definition with a default value
+SELECTION-SCREEN: BEGIN OF BLOCK sel.
+PARAMETERS: pa_examp TYPE string DEFAULT 'ABAP4BTP is amazing '.
+SELECTION-SCREEN: END OF BLOCK sel.
+
+" Check if the input parameter is not initial (empty)
+IF pa_examp IS NOT INITIAL.
+  lw_example = pa_examp. " Assign the input parameter to a local variable
+ENDIF.
+
+" Split the input sentence into words and store them in an internal table
+SPLIT lw_example AT space INTO TABLE lt_words.
+
+" Count the number of words in the internal table
+lv_word_count = lines( lt_words ).
+
+" Output the number of words found in the sentence
+WRITE:/'Number of words of this sentence:', lv_word_count.
+
+" Main loop to process each word in the internal table of words
+LOOP AT lt_words INTO lw_example.
+  " Clear the range table for unique characters for the new word
+  CLEAR r_unique_letters.
+
+  " Loop over each character in the current word
+  DO strlen( lw_example ) TIMES.
+    " Clear the current character placeholder
+    CLEAR lv_current_char.
+
+    " Extract the current character from the word
+    " Special handling for the first character
+    IF sy-index = 1.
+      lv_current_char = lw_example+0(sy-index).
+    ELSE.
+      " Calculate the offset for other characters
+      DATA(lv_index) = sy-index - 1.
+      lv_current_char = lw_example+lv_index.
+    ENDIF.
+
+    " If the current character is not initial (not empty)
+    IF NOT lv_current_char IS INITIAL.
+      " Check if the character already exists in the range table
+      READ TABLE r_unique_letters INTO DATA(ls_unique) WITH KEY low = lv_current_char.
+      " If not, append it to the range table
+      IF sy-subrc NE 0.
+        APPEND VALUE #( sign = 'I' option = 'EQ' low = lv_current_char ) TO r_unique_letters.
+      ENDIF.
+    ENDIF.
+  ENDDO.
+
+  " Count the number of unique characters found in the word
+  lv_unique_count = lines( r_unique_letters ).
+
+  " Output the unique character count for the current word
+  WRITE: / 'Number of unique characters in the word:', lw_example, lv_unique_count.
+
+  " Clear variables for next loop iteration
+  CLEAR: lw_example, lv_unique_count.
+ENDLOOP.
