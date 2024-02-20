@@ -38,4 +38,4 @@ We have create button on header level where we can create a new spacefarer and d
 
 User can click on the respective line item and it will navigate to object page. User has possiblity to edit all the fields. 
 
-**Please note** : I have used .csv files to store data. You can also delete the folder csv and enter your own entries with create button. I will also attach the PDF document for application demonstration.
+**Please note** : I have used .csv files to store data. You can also delete the folder csv and enter your own entries with create button. I will also attach the PDF document for application demonstration. Also I have deleted node modules from the project , please install node modules after importing the project to BAS.
